@@ -79,12 +79,12 @@ func getCustomersHandler(c *gin.Context)  {
 
 		customers = append(customers, t)
 	}
-
-	if len(customers) > 0 {
-		c.JSON(http.StatusOK, customers)
-	} else{
-		c.JSON(http.StatusUnauthorized, "Status code is 401 Unauthorized")
-	}	
+	c.JSON(http.StatusOK, customers)
+	// if len(customers) > 0 {
+	// 	c.JSON(http.StatusOK, customers)
+	// } else{
+	// 	c.JSON(http.StatusUnauthorized, "Status code is 401 Unauthorized")
+	// }	
 
 }
 
@@ -146,9 +146,21 @@ func createTable()  {
 	}
 }
 
+func loginMiddleware(c *gin.Context) {
+	log.Println("Start Middleware")
+	authKey := c.GetHeader("Authorization")
+	if authKey != "token2019" {
+		c.JSON(http.StatusUnauthorized, "Unauthorized")
+		c.Abort()
+		return
+	}
+	c.Next()
+
+}
+
 func setUp() *gin.Engine  {
 	r := gin.Default()
-
+	r.Use(loginMiddleware)
 	v1 := r.Group("")
 
 	v1.POST("/customers" , createCustomersHandler)
